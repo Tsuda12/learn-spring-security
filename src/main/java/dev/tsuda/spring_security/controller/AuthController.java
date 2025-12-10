@@ -9,6 +9,7 @@ import dev.tsuda.spring_security.repository.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,9 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder encoder;
 
-    public AuthController(UserRepository userRepository) {
+    public AuthController(UserRepository userRepository, PasswordEncoder encoder) {
         this.userRepository = userRepository;
+        this.encoder = encoder;
     }
 
     @PostMapping("/login")
@@ -29,12 +32,12 @@ public class AuthController {
         return null;
     }
 
-    @PostMapping("")
+    @PostMapping("/register")
     public ResponseEntity<RegisterUserResponse> register(@Valid @RequestBody RegisterUserRequest request) {
         User user = new User();
         user.setEmail(request.email());
         user.setName(request.name());
-        user.setPassword(request.password());
+        user.setPassword(encoder.encode(request.password()));
 
         userRepository.save(user);
 
